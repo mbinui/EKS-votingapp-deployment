@@ -1,5 +1,9 @@
 pipeline {
-    agent any      # we can create terraform node and maven-sonar and use too
+    agent any  # we can create terraform node and maven-sonar and use too
+
+    parameters {
+        choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Choose whether to apply or destroy the infrastructure')
+    }
 
     environment {
         AWS_REGION = 'us-east-2'
@@ -17,6 +21,9 @@ pipeline {
         }
 
         stage('Configure AWS CLI') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                     sh '''
@@ -29,34 +36,42 @@ pipeline {
             }
         }
 
-        stage('Create EKS Cluster') {
+        stage('Manage EKS Cluster') {
             steps {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                        sh '''
-                        # Navigate to Terraform directory
-                        cd terraform-eks
-
-                        # Initialize Terraform
-                        terraform init
-
-                        # Apply Terraform configuration to create the EKS cluster
-                        terraform apply -auto-approve -var="aws_region=${AWS_REGION}" -var="cluster_name=${EKS_CLUSTER_NAME}"
-                        '''
+                        if (params.ACTION == 'apply') {
+                            sh '''
+                            cd terraform-eks
+                            terraform init
+                            terraform apply -auto-approve -var="aws_region=${AWS_REGION}" -var="cluster_name=${EKS_CLUSTER_NAME}"
+                            '''
+                        } else if (params.ACTION == 'destroy') {
+                            sh '''
+                            cd terraform-eks
+                            terraform destroy -auto-approve -var="aws_region=${AWS_REGION}" -var="cluster_name=${EKS_CLUSTER_NAME}"
+                            '''
+                        }
                     }
                 }
             }
         }
 
         stage('Create Namespace') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 sh '''
                 kubectl create namespace $NAMESPACE || true
                 '''
             }
         }
-        
-       stage('Create DockerHub Secret') {
+
+        stage('Create DockerHub Secret') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
                     sh '''
@@ -71,6 +86,9 @@ pipeline {
         }
 
         stage('Create MySQL Secret') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 withCredentials([string(credentialsId: 'mysql-root-password', variable: 'MYSQL_ROOT_PASSWORD')]) {
                     sh '''
@@ -83,26 +101,35 @@ pipeline {
         }
 
         stage('Deploy MySQL') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 sh '''
-                kubectl apply -f k8s/mysql-pv.yml
-                kubectl apply -f k8s/mysql-pv-claim.yml
-                envsubst < k8s/mysql-deployment.yml | kubectl apply -f -
-                kubectl apply -f k8s/mysql-service.yml
+                kubectl apply -f terraform-eks/k8s/mysql-pv.yml
+                kubectl apply -f terraform-eks/k8s/mysql-pv-claim.yml
+                envsubst < terraform-eks/k8s/mysql-deployment.yml | kubectl apply -f -
+                kubectl apply -f terraform-eks/k8s/mysql-service.yml
                 '''
             }
         }
 
         stage('Deploy Voting Application') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 sh '''
-                envsubst < k8s/voting-app-deployment.yml | kubectl apply -f -
-                kubectl apply -f k8s/voting-app-service.yml
+                envsubst < terraform-eks/k8s/voting-app-deployment.yml | kubectl apply -f -
+                kubectl apply -f terraform-eks/k8s/voting-app-service.yml
                 '''
             }
         }
 
         stage('Verify Deployment') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 sh '''
                 kubectl get deployments -n ${NAMESPACE}
@@ -113,12 +140,21 @@ pipeline {
         }
 
         stage('Get Application URL') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 script {
                     def svc = sh(script: "kubectl get svc voting-app -n ${NAMESPACE} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'", returnStdout: true).trim()
                     echo "Application is accessible at: http://$svc"
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            // Cleanup or notifications if needed
         }
     }
 }
