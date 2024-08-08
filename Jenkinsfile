@@ -1,5 +1,5 @@
 pipeline {
-    agent any  # we can create terraform node and maven-sonar and use too
+    agent any  
 
     parameters {
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Choose whether to apply or destroy the infrastructure')
