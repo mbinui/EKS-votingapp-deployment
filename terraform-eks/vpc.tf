@@ -1,22 +1,36 @@
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
-  enable_dns_support = true
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
   enable_dns_hostnames = true
+
   tags = {
-    Name = "my-vpc"
+    Name = "${var.cluster_name}-vpc"
   }
 }
 
 resource "aws_subnet" "public" {
-  count = 2
-  vpc_id = aws_vpc.main.id
-  cidr_block = "10.0.1.${count.index + 1}.0/24"
-  availability_zone = element(data.aws_availability_zones.available.names, count.index)
+  count = length(var.public_subnets)
+
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = element(var.public_subnets, count.index)
   map_public_ip_on_launch = true
+  availability_zone       = element(var.availability_zones, count.index)
+
   tags = {
-    Name = "public-subnet-${count.index}"
+    Name = "${var.cluster_name}-public-${count.index}"
   }
 }
+
+resource "aws_subnet" "private" {
+  count = length(var.private_subnets)
+
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = element(var.private_subnets, count.index)
+  availability_zone = element(var.availability_zones, count.index)
+
+  tags = {
+    Name = "${var.cluster_name}-private-${count.index}"
+  }
 
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
