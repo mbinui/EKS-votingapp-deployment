@@ -1,0 +1,17 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore Docker files
+docker-compose.yml
+.dockerignore
+
+# Ignore AWS CLI installation files
+awscliv2.zip
+
+# Ignore other temporary files
+temp/
+*.tmp
+

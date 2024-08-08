@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: voting-app
+      namespace: ${NAMESPACE}
+      spec:
+          replicas: 3
+            selector:
+                  matchLabels:
+                          app: voting-app
+                            template:
+                                  metadata:
+                                          labels:
+                                                    app: voting-app
+                                                        spec:
+                                                                containers:
+                                                                        - name: voting-app
+                                                                                image: ${VOTING_APP_IMAGE}
+                                                                                        env:
+                                                                                                  - name: DATABASE_HOST
+                                                                                                            value: mysql.${NAMESPACE}.svc.cluster.local
+                                                                                                                    - name: DATABASE_USER
+                                                                                                                              value: root
+                                                                                                                                      - name: DATABASE_PASSWORD
+                                                                                                                                                value: ${MYSQL_ROOT_PASSWORD}
+                                                                                                                                                        ports:
+                                                                                                                                                                  - containerPort: 80
+                                                                                                                                                                        imagePullSecrets:
+                                                                                                                                                                                - name: dockerhub-secret  # Add this line if your DockerHub repository is private
+
