@@ -23,11 +23,17 @@ set -e
 # Install eksctl
 echo "Installing eksctl..."
 if ! command -v eksctl &> /dev/null; then
-    curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/0.149.0/eksctl_$(uname -s)_amd64.tar.gz" -o /tmp/eksctl.tar.gz
-    tar xz -C /tmp -f /tmp/eksctl.tar.gz
-    sudo mv /tmp/eksctl /usr/local/bin
+    eksctl_url="https://github.com/weaveworks/eksctl/releases/download/0.149.0/eksctl_$(uname -s)_amd64.tar.gz"
+    curl --silent --location "$eksctl_url" -o /tmp/eksctl.tar.gz
+    if file /tmp/eksctl.tar.gz | grep -q 'gzip compressed data'; then
+        tar xz -C /tmp -f /tmp/eksctl.tar.gz
+        sudo mv /tmp/eksctl /usr/local/bin
+        echo "eksctl installed successfully."
+    else
+        echo "Error: Downloaded file is not a valid gzip archive."
+        exit 1
+    fi
     rm /tmp/eksctl.tar.gz
-    echo "eksctl installed successfully."
 else
     echo "eksctl already installed."
 fi
