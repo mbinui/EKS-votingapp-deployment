@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-    name: mysql-pv-claim
-      namespace: ${NAMESPACE}
-      spec:
-          accessModes:
-                - ReadWriteOnce
-                  resources:
-                        requests:
-                                storage: 20Gi
+  name: mysql-pv-claim
+  namespace: ${NAMESPACE}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
 
