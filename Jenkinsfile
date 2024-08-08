@@ -29,6 +29,25 @@ pipeline {
             }
         }
 
+        stage('Create EKS Cluster') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                        sh '''
+                        # Navigate to Terraform directory
+                        cd terraform-eks
+
+                        # Initialize Terraform
+                        terraform init
+
+                        # Apply Terraform configuration to create the EKS cluster
+                        terraform apply -auto-approve -var="aws_region=${AWS_REGION}" -var="cluster_name=${EKS_CLUSTER_NAME}"
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Create Namespace') {
             steps {
                 sh '''
