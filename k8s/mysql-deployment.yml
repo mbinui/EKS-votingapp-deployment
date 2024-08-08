@@ -18,7 +18,10 @@ spec:
         image: ${MYSQL_IMAGE}
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: ${MYSQL_ROOT_PASSWORD}
+          valueFrom:
+            secretKeyRef:
+              name: mysql-root-password
+              key: password
         ports:
         - containerPort: 3306
         volumeMounts:
