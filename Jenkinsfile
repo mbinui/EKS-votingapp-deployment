@@ -1,12 +1,12 @@
 pipeline {
-    agent any
+    agent any      # we can create terraform node and maven-sonar and use too
 
     environment {
-        AWS_REGION = 'us-west-2'
+        AWS_REGION = 'us-east-2'
         EKS_CLUSTER_NAME = 'my-voting-app-cluster'
         NAMESPACE = 'voting-app'
-        MYSQL_IMAGE = '<your-dockerhub-username>/mysql:latest'
-        VOTING_APP_IMAGE = '<your-dockerhub-username>/voting-app:latest'
+        MYSQL_IMAGE = 'mbinui/mysql:latest'
+        VOTING_APP_IMAGE = 'mbinui/votingapp:v1'
     }
 
     stages {
@@ -36,41 +36,50 @@ pipeline {
                 '''
             }
         }
-
-        stage('Create DockerHub Secret') {
+        
+       stage('Create DockerHub Secret') {
             steps {
-                sh '''
-                kubectl create secret docker-registry dockerhub-secret \
-                --docker-server=https://index.docker.io/v1/ \
-                --docker-username=<your-dockerhub-username> \
-                --docker-password=<your-dockerhub-password> \
-                --docker-email=<your-email> \
-                --namespace=${NAMESPACE} || true
-                '''
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+                    sh '''
+                    kubectl create secret docker-registry dockerhub-secret \
+                    --docker-server=https://index.docker.io/v1/ \
+                    --docker-username=${DOCKERHUB_USERNAME} \
+                    --docker-password=${DOCKERHUB_PASSWORD} \
+                    --namespace=${NAMESPACE} || true
+                    '''
+                }
+            }
+        }
+
+        stage('Create MySQL Secret') {
+            steps {
+                withCredentials([string(credentialsId: 'mysql-root-password', variable: 'MYSQL_ROOT_PASSWORD')]) {
+                    sh '''
+                    kubectl create secret generic mysql-root-password \
+                    --from-literal=password=${MYSQL_ROOT_PASSWORD} \
+                    --namespace=${NAMESPACE} || true
+                    '''
+                }
             }
         }
 
         stage('Deploy MySQL') {
             steps {
-                withCredentials([string(credentialsId: 'mysql-root-password', variable: 'MYSQL_ROOT_PASSWORD')]) {
-                    sh '''
-                    kubectl apply -f k8s/mysql-pv.yml
-                    kubectl apply -f k8s/mysql-pv-claim.yml
-                    envsubst < k8s/mysql-deployment.yml | kubectl apply -f -
-                    kubectl apply -f k8s/mysql-service.yml
-                    '''
-                }
+                sh '''
+                kubectl apply -f k8s/mysql-pv.yml
+                kubectl apply -f k8s/mysql-pv-claim.yml
+                envsubst < k8s/mysql-deployment.yml | kubectl apply -f -
+                kubectl apply -f k8s/mysql-service.yml
+                '''
             }
         }
 
         stage('Deploy Voting Application') {
             steps {
-                withCredentials([string(credentialsId: 'mysql-root-password', variable: 'MYSQL_ROOT_PASSWORD')]) {
-                    sh '''
-                    envsubst < k8s/voting-app-deployment.yml | kubectl apply -f -
-                    kubectl apply -f k8s/voting-app-service.yml
-                    '''
-                }
+                sh '''
+                envsubst < k8s/voting-app-deployment.yml | kubectl apply -f -
+                kubectl apply -f k8s/voting-app-service.yml
+                '''
             }
         }
 
