@@ -1,74 +1,74 @@
-# #!/bin/bash
-
-# # Install eksctl
-#  curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/0.149.0/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-#  sudo mv /tmp/eksctl /usr/local/bin
-
-# # Install kubectl
-#  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-#  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-# # Install aws-cli
-#  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-#  unzip awscliv2.zip
-#  sudo ./aws/install
-
-# # Install helm
-#  curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-
 #!/bin/bash
 
-set -e
-
 # Install eksctl
-echo "Installing eksctl..."
-if ! command -v eksctl &> /dev/null; then
-    eksctl_url="https://github.com/weaveworks/eksctl/releases/download/0.149.0/eksctl_$(uname -s)_amd64.tar.gz"
-    curl --silent --location "$eksctl_url" -o /tmp/eksctl.tar.gz
-    if file /tmp/eksctl.tar.gz | grep -q 'gzip compressed data'; then
-        tar xz -C /tmp -f /tmp/eksctl.tar.gz
-        sudo mv /tmp/eksctl /usr/local/bin
-        echo "eksctl installed successfully."
-    else
-        echo "Error: Downloaded file is not a valid gzip archive."
-        exit 1
-    fi
-    rm /tmp/eksctl.tar.gz
-else
-    echo "eksctl already installed."
-fi
+ curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/0.149.0/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+ sudo mv /tmp/eksctl /usr/local/bin
 
 # Install kubectl
-echo "Installing kubectl..."
-if ! command -v kubectl &> /dev/null; then
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" -o /tmp/kubectl
-    sudo install -o root -g root -m 0755 /tmp/kubectl /usr/local/bin/kubectl
-    rm /tmp/kubectl
-    echo "kubectl installed successfully."
-else
-    echo "kubectl already installed."
-fi
+ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-# Install AWS CLI
-echo "Installing AWS CLI..."
-if ! command -v aws &> /dev/null; then
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
-    unzip /tmp/awscliv2.zip -d /tmp
-    sudo /tmp/aws/install
-    rm -rf /tmp/awscliv2.zip /tmp/aws
-    echo "AWS CLI installed successfully."
-else
-    echo "AWS CLI already installed."
-fi
+# Install aws-cli
+ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+ unzip awscliv2.zip
+ sudo ./aws/install
 
-# Install Helm
-echo "Installing Helm..."
-if ! command -v helm &> /dev/null; then
-    curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-    echo "Helm installed successfully."
-else
-    echo "Helm already installed."
-fi
+# Install helm
+ curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+# #!/bin/bash
+
+# set -e
+
+# # Install eksctl
+# echo "Installing eksctl..."
+# if ! command -v eksctl &> /dev/null; then
+#     eksctl_url="https://github.com/weaveworks/eksctl/releases/download/0.149.0/eksctl_$(uname -s)_amd64.tar.gz"
+#     curl --silent --location "$eksctl_url" -o /tmp/eksctl.tar.gz
+#     if file /tmp/eksctl.tar.gz | grep -q 'gzip compressed data'; then
+#         tar xz -C /tmp -f /tmp/eksctl.tar.gz
+#         sudo mv /tmp/eksctl /usr/local/bin
+#         echo "eksctl installed successfully."
+#     else
+#         echo "Error: Downloaded file is not a valid gzip archive."
+#         exit 1
+#     fi
+#     rm /tmp/eksctl.tar.gz
+# else
+#     echo "eksctl already installed."
+# fi
+
+# # Install kubectl
+# echo "Installing kubectl..."
+# if ! command -v kubectl &> /dev/null; then
+#     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" -o /tmp/kubectl
+#     sudo install -o root -g root -m 0755 /tmp/kubectl /usr/local/bin/kubectl
+#     rm /tmp/kubectl
+#     echo "kubectl installed successfully."
+# else
+#     echo "kubectl already installed."
+# fi
+
+# # Install AWS CLI
+# echo "Installing AWS CLI..."
+# if ! command -v aws &> /dev/null; then
+#     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+#     unzip /tmp/awscliv2.zip -d /tmp
+#     sudo /tmp/aws/install
+#     rm -rf /tmp/awscliv2.zip /tmp/aws
+#     echo "AWS CLI installed successfully."
+# else
+#     echo "AWS CLI already installed."
+# fi
+
+# # Install Helm
+# echo "Installing Helm..."
+# if ! command -v helm &> /dev/null; then
+#     curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+#     echo "Helm installed successfully."
+# else
+#     echo "Helm already installed."
+# fi
 
 # Install Terraform
 echo "Installing Terraform..."
