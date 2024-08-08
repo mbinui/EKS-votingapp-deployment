@@ -151,10 +151,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            // Cleanup or notifications if needed
-        }
-    }
 }
