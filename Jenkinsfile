@@ -14,6 +14,12 @@ pipeline {
     }
 
     stages {
+        stage('Set Script Permissions') {
+            steps {
+                sh 'chmod +x scripts/install-tools.sh'
+            }
+        }
+
         stage('Install Tools') {
             steps {
                 sh 'scripts/install-tools.sh'
