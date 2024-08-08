@@ -125,18 +125,20 @@ Give the credentials an ID (e.g., dockerhub-credentials)
 Step 4: Create DockerHub Secret in Kubernetes
 Ensure that your Jenkinsfile includes the step to create a secret in your Kubernetes cluster for DockerHub
 Ensure the DockerHub secret is created in the same namespace where the deployments are applied.
+
 stage('Create DockerHub Secret') {
-    steps {
-        sh '''
-        kubectl create secret docker-registry dockerhub-secret \
-        --docker-server=https://index.docker.io/v1/ \
-        --docker-username=<your-dockerhub-username> \
-        --docker-password=<your-dockerhub-password> \
-        --docker-email=<your-email> \
-        --namespace=${NAMESPACE} || true
-        '''
-    }
-}
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+                    sh '''
+                    kubectl create secret docker-registry dockerhub-secret \
+                    --docker-server=https://index.docker.io/v1/ \
+                    --docker-username=${DOCKERHUB_USERNAME} \
+                    --docker-password=${DOCKERHUB_PASSWORD} \
+                    --namespace=${NAMESPACE} || true
+                    '''
+                }
+            }
+        }
 
 step 5: Add MySQL Root Password to Jenkins Credentials
 Go to Jenkins Dashboard.
