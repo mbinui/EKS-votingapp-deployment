@@ -150,3 +150,15 @@ Choose "Secret text" as the kind.
 Enter the MySQL root password.
 Give the credentials an ID (e.g., mysql-root-password).
 
+
+Summary of the Jenkinsfile
+Install Tools: Installs necessary tools (like aws-cli, terraform, and kubectl)
+Configure AWS CLI: Sets up AWS CLI with credentials and configures kubectl to use the EKS cluster.
+Create EKS Cluster: Initializes and applies Terraform to create the EKS cluster.
+Create Namespace: Creates a Kubernetes namespace for your application.
+Create DockerHub Secret: Creates a Kubernetes secret for accessing DockerHub.
+Create MySQL Secret: Creates a Kubernetes secret for the MySQL root password.
+Deploy MySQL: Applies Kubernetes manifests to deploy MySQL.
+Deploy Voting Application: Applies Kubernetes manifests to deploy your voting application.
+Verify Deployment: Checks the status of deployments, pods, and services.
+Get Application URL: Retrieves and echoes the application URL for access.
