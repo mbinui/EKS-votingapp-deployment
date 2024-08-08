@@ -17,7 +17,58 @@ This repository contains files for deploying a voting application and a MySQL da
 git clone https://github.com/<your-username>/EKS-deployment.git
 cd EKS-deployment
 
+Step 1: Create an IAM User or Role
+Create an IAM User
+Sign in to the AWS Management Console.
 
+Navigate to the IAM console.
+Create a new user:    #in this case we are working as root user though
+
+Go to Users and click Add user.
+Enter a username (e.g., jenkins-user).
+Select Programmatic access.
+Attach policies:
+
+Attach the following managed policies:
+AmazonEKSClusterPolicy
+AmazonEKSWorkerNodePolicy
+AmazonEC2ContainerRegistryFullAccess   #in this case we are using dockerhub though
+AmazonS3FullAccess
+AmazonEC2FullAccess
+IAMFullAccess
+Optionally, create a custom policy to restrict permissions further based on your security requirements.
+Complete the user creation and download the access key ID and secret access key. You will use these credentials in Jenkins.
+
+Create an IAM Role (if using EC2 Jenkins Agent)
+Navigate to the IAM console.
+
+Create a new role:
+Go to Roles and click Create role.
+Select AWS service and choose EC2.
+Attach the same managed policies as mentioned above.
+Complete the role creation.
+Attach the role to your Jenkins EC2 instance:
+
+Navigate to the EC2 console.
+Select your Jenkins instance.
+Choose Actions > Instance Settings > Attach/Replace IAM Role.
+Select the newly created IAM role and attach it.
+Step 2: Configure Jenkins to Use AWS Credentials
+Using AWS Credentials in Jenkins
+Install the AWS Credentials Plugin:
+
+In Jenkins, navigate to Manage Jenkins > Manage Plugins.
+Go to the Available tab, search for AWS Credentials Plugin, and install it.
+Add AWS credentials:
+
+In Jenkins, navigate to Manage Jenkins > Manage Credentials.
+Select the appropriate domain (e.g., Global).
+Click Add Credentials and select AWS Credentials from the kind dropdown.
+Enter the access key ID and secret access key obtained when creating the IAM user.
+Give it an ID (e.g., aws-credentials) and a description.
+Save the credentials.
+
+Ensure Jenkins is set up and has the necessary plugins installed (Kubernetes CLI Plugin, Pipeline: AWS Steps, Pipeline: Groovy, etc.)
 Configure Jenkins and Run the Pipeline
 Add AWS Credentials in Jenkins:
 
@@ -72,7 +123,8 @@ Enter your DockerHub username and password.
 Give the credentials an ID (e.g., dockerhub-credentials)
 
 Step 4: Create DockerHub Secret in Kubernetes
-Ensure that your Jenkinsfile includes the step to create a secret in your Kubernetes cluster for DockerHub:
+Ensure that your Jenkinsfile includes the step to create a secret in your Kubernetes cluster for DockerHub
+Ensure the DockerHub secret is created in the same namespace where the deployments are applied.
 stage('Create DockerHub Secret') {
     steps {
         sh '''
@@ -86,4 +138,13 @@ stage('Create DockerHub Secret') {
     }
 }
 
+step 5: Add MySQL Root Password to Jenkins Credentials
+Go to Jenkins Dashboard.
+Click on "Manage Jenkins".
+Click on "Manage Credentials".
+Select the appropriate domain (e.g., "Global credentials (unrestricted)").
+Click on "Add Credentials".
+Choose "Secret text" as the kind.
+Enter the MySQL root password.
+Give the credentials an ID (e.g., mysql-root-password).
 
