@@ -126,8 +126,8 @@ pipeline {
             }
             steps {
                 sh '''
-                sed 's#\\${VOTING_APP_IMAGE}#${image}#g' k8s/voting-app-deployment.yml | kubectl apply -f -
-                sed 's#\\${NAMESPACE}#${namespace}#g' k8s/voting-app-service.yml | kubectl apply -f -
+                sed 's/\\${VOTING_APP_IMAGE}/${IMAGE}/g" k8s/voting-app-deployment.yml | kubectl apply -f -
+                sed "s/\\${NAMESPACE}/${NAMESPACE}/g" k8s/voting-app-service.yml | kubectl apply -f -
                 '''
             }
         }
