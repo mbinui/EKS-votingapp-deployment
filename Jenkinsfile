@@ -27,16 +27,12 @@ pipeline {
         }
 
         stage('Configure AWS CLI') {
-            when {
-                expression { params.ACTION == 'apply' }
-            }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                     sh '''
                     aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
                     aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
                     aws configure set default.region $AWS_REGION
-                    aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
                     '''
                 }
             }
@@ -52,6 +48,9 @@ pipeline {
                             terraform init
                             terraform apply -auto-approve -var="aws_region=${AWS_REGION}" -var="cluster_name=${EKS_CLUSTER_NAME}"
                             '''
+                            sh '''
+                            aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+                            '''
                         } else if (params.ACTION == 'destroy') {
                             sh '''
                             cd terraform-eks
@@ -62,7 +61,6 @@ pipeline {
                 }
             }
         }
-
         stage('Create Namespace') {
             when {
                 expression { params.ACTION == 'apply' }
