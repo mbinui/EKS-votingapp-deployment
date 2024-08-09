@@ -20,7 +20,9 @@ kubectl version --client
 
 # Install AWS CLI
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+sudo apt install unzip -y
 unzip awscliv2.zip
+sudo ./aws/install
 ./aws/install --bin-dir $INSTALL_DIR --install-dir $INSTALL_DIR/aws-cli --update
 aws --version
 
