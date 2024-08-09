@@ -1,8 +1,18 @@
 #!/bin/bash
 
+# Function to prompt for sudo password and update sudo timestamp
+prompt_sudo() {
+  echo "Please enter your sudo password:"
+  sudo -v
+  while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+}
+
+# Prompt for sudo password
+prompt_sudo
+
 # Update package list and install prerequisites
 sudo apt-get update -y
-sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
+sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release unzip
 
 # Install Java 17 (if not already installed)
 sudo apt-get install -y openjdk-17-jdk
@@ -11,7 +21,7 @@ sudo apt-get install -y openjdk-17-jdk
 java -version
 
 # Install eksctl
-curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 sudo mv /tmp/eksctl /usr/local/bin
 eksctl version
 
@@ -40,6 +50,7 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o 
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update -y
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker
 docker --version
