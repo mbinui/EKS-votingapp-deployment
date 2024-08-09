@@ -113,7 +113,7 @@ pipeline {
             steps {
                 sh '''
                 kubectl apply -f k8s/mysql-pv.yml
-                kubectl apply -f k8s/mysql-pv-claim.yml
+                sed "s/\\${NAMESPACE}/${NAMESPACE}/g" k8s/mysql-pv-claim.yml | kubectl apply -f -
                 envsubst < k8s/mysql-deployment.yml | kubectl apply -f -
                 kubectl apply -f k8s/mysql-service.yml
                 '''
