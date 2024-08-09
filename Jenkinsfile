@@ -100,7 +100,7 @@ pipeline {
                     sh '''
                     kubectl create secret generic mysql-root-password \
                     --from-literal=password=${MYSQL_ROOT_PASSWORD} \
-                    --namespace=${NAMESPACE} || true
+                    --namespace=${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
                     '''
                 }
             }
