@@ -1,111 +1,51 @@
 #!/bin/bash
 
+# Update package list and install prerequisites
+sudo apt-get update -y
+sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
+
+# Install Java 17 (if not already installed)
+sudo apt-get install -y openjdk-17-jdk
+
+# Verify Java installation
+java -version
+
 # Install eksctl
- curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/0.149.0/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
- sudo mv /tmp/eksctl /usr/local/bin
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
 
 # Install kubectl
- curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
- sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+kubectl version --client
 
-# Install aws-cli
- curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
- unzip awscliv2.zip
- sudo ./aws/install
-
-# Install helm
- curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-
-# #!/bin/bash
-
-# set -e
-
-# # Install eksctl
-# echo "Installing eksctl..."
-# if ! command -v eksctl &> /dev/null; then
-#     eksctl_url="https://github.com/weaveworks/eksctl/releases/download/0.149.0/eksctl_$(uname -s)_amd64.tar.gz"
-#     curl --silent --location "$eksctl_url" -o /tmp/eksctl.tar.gz
-#     if file /tmp/eksctl.tar.gz | grep -q 'gzip compressed data'; then
-#         tar xz -C /tmp -f /tmp/eksctl.tar.gz
-#         sudo mv /tmp/eksctl /usr/local/bin
-#         echo "eksctl installed successfully."
-#     else
-#         echo "Error: Downloaded file is not a valid gzip archive."
-#         exit 1
-#     fi
-#     rm /tmp/eksctl.tar.gz
-# else
-#     echo "eksctl already installed."
-# fi
-
-# # Install kubectl
-# echo "Installing kubectl..."
-# if ! command -v kubectl &> /dev/null; then
-#     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" -o /tmp/kubectl
-#     sudo install -o root -g root -m 0755 /tmp/kubectl /usr/local/bin/kubectl
-#     rm /tmp/kubectl
-#     echo "kubectl installed successfully."
-# else
-#     echo "kubectl already installed."
-# fi
-
-# # Install AWS CLI
-# echo "Installing AWS CLI..."
-# if ! command -v aws &> /dev/null; then
-#     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
-#     unzip /tmp/awscliv2.zip -d /tmp
-#     sudo /tmp/aws/install
-#     rm -rf /tmp/awscliv2.zip /tmp/aws
-#     echo "AWS CLI installed successfully."
-# else
-#     echo "AWS CLI already installed."
-# fi
-
-# # Install Helm
-# echo "Installing Helm..."
-# if ! command -v helm &> /dev/null; then
-#     curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-#     echo "Helm installed successfully."
-# else
-#     echo "Helm already installed."
-# fi
+# Install AWS CLI
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws --version
 
 # Install Terraform
-echo "Installing Terraform..."
-if ! command -v terraform &> /dev/null; then
-    curl -LO "https://releases.hashicorp.com/terraform/1.5.3/terraform_1.5.3_linux_amd64.zip" -o /tmp/terraform.zip
-    unzip /tmp/terraform.zip -d /tmp
-    sudo mv /tmp/terraform /usr/local/bin/
-    rm /tmp/terraform.zip
-    echo "Terraform installed successfully."
-else
-    echo "Terraform already installed."
-fi
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt-get update && sudo apt-get install -y terraform
+terraform -version
 
 # Install Docker
-echo "Installing Docker..."
-if ! command -v docker &> /dev/null; then
-    sudo apt-get update
-    sudo apt-get install -y \
-        apt-transport-https \
-        ca-certificates \
-        curl \
-        gnupg \
-        lsb-release
+sudo apt-get remove -y docker docker-engine docker.io containerd runc
+sudo apt-get install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update -y
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker $USER
+newgrp docker
+docker --version
 
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+# Cleanup
+rm -f kubectl awscliv2.zip
+rm -rf aws
 
-    echo \
-      "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-    sudo apt-get update
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-
-    sudo usermod -aG docker $USER
-    echo "Docker installed successfully."
-else
-    echo "Docker already installed."
-fi
-
-echo "All tools installed successfully."
+echo "All tools installed successfully!"
