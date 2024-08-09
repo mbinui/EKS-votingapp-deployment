@@ -110,10 +110,10 @@ pipeline {
             }
             steps {
                 sh '''
-                kubectl apply -f terraform-eks/k8s/mysql-pv.yml
-                kubectl apply -f terraform-eks/k8s/mysql-pv-claim.yml
-                envsubst < terraform-eks/k8s/mysql-deployment.yml | kubectl apply -f -
-                kubectl apply -f terraform-eks/k8s/mysql-service.yml
+                kubectl apply -f k8s/mysql-pv.yml
+                kubectl apply -f k8s/mysql-pv-claim.yml
+                envsubst < k8s/mysql-deployment.yml | kubectl apply -f -
+                kubectl apply -f k8s/mysql-service.yml
                 '''
             }
         }
@@ -124,8 +124,8 @@ pipeline {
             }
             steps {
                 sh '''
-                envsubst < terraform-eks/k8s/voting-app-deployment.yml | kubectl apply -f -
-                kubectl apply -f terraform-eks/k8s/voting-app-service.yml
+                envsubst < k8s/voting-app-deployment.yml | kubectl apply -f -
+                kubectl apply -f k8s/voting-app-service.yml
                 '''
             }
         }
