@@ -50,16 +50,8 @@ pipeline {
                             '''
                             sh '''
                             aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
-                            # Check current context
-                            current_context=$(kubectl config current-context)
-                            echo "Current context: $current_context"
-
-                            # Set the context explicitly if necessary
-                            kubectl config use-context $EKS_CLUSTER_NAME
-
-                            # Verify context is set correctly
-                            current_context=$(kubectl config current-context)
-                            echo "Updated context: $current_context"
+                            kubectl config get-contexts
+                            kubectl config use-context arn:aws:eks:$AWS_REGION:032795972194:cluster/$EKS_CLUSTER_NAME
                             '''
                         } else if (params.ACTION == 'destroy') {
                             sh '''
