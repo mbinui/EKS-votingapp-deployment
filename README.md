@@ -162,3 +162,6 @@ Deploy MySQL: Applies Kubernetes manifests to deploy MySQL.
 Deploy Voting Application: Applies Kubernetes manifests to deploy your voting application.
 Verify Deployment: Checks the status of deployments, pods, and services.
 Get Application URL: Retrieves and echoes the application URL for access.
+
+
+The iam script defines the IAM roles and policies for the EKS cluster and the EKS node group. The eks_cluster role has the AmazonEKSClusterPolicy attached, and the eks_node role has the AmazonEKSWorkerNodePolicy, AmazonEKS_CNI_Policy, and AmazonEC2ContainerRegistryReadOnly policies attached. These policies should provide the necessary permissions for your EKS cluster and nodes to function correctly
