@@ -35,3 +35,40 @@ rm -f kubectl awscliv2.zip terraform.zip
 rm -rf aws
 
 echo "All tools installed successfully!"
+
+# Verification
+
+# Verify eksctl installation
+if command -v eksctl &> /dev/null; then
+    echo "eksctl version: $(eksctl version)"
+else
+    echo "eksctl is not installed correctly."
+fi
+
+# Verify kubectl installation
+if command -v kubectl &> /dev/null; then
+    echo "kubectl version: $(kubectl version --client --short)"
+else
+    echo "kubectl is not installed correctly."
+fi
+
+# Verify AWS CLI installation
+if command -v aws &> /dev/null; then
+    echo "AWS CLI version: $(aws --version)"
+else
+    echo "AWS CLI is not installed correctly."
+fi
+
+# Verify Terraform installation
+if command -v terraform &> /dev/null; then
+    echo "Terraform version: $(terraform -version)"
+else
+    echo "Terraform is not installed correctly."
+fi
+
+# Verify Docker installation
+if command -v docker &> /dev/null; then
+    echo "Docker version: $(docker --version)"
+else
+    echo "Docker is not installed correctly."
+fi
