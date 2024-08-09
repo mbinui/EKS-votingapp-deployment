@@ -47,7 +47,7 @@ fi
 
 # Verify kubectl installation
 if command -v kubectl &> /dev/null; then
-    echo "kubectl version: $(kubectl version --client --short)"
+    echo "kubectl version: $(kubectl version --client)"
 else
     echo "kubectl is not installed correctly."
 fi
