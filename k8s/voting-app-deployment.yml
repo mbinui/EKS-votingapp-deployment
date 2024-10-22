@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: voting-app
-  namespace: ${NAMESPACE}
+  namespace: voting-app  # Replace 'default' with your desired namespace
 spec:
   replicas: 3
   selector:
@@ -15,10 +15,10 @@ spec:
     spec:
       containers:
       - name: voting-app
-        image: ${VOTING_APP_IMAGE}
+        image: mbinui/votingapp:v1  # Replace with your specific image
         env:
         - name: DATABASE_HOST
-          value: mysql.${NAMESPACE}.svc.cluster.local
+          value: mysql.voting-app.svc.cluster.local  # Replace 'default' with your namespace if needed
         - name: DATABASE_USER
           value: root
         - name: DATABASE_PASSWORD
@@ -30,3 +30,42 @@ spec:
         - containerPort: 80
       imagePullSecrets:
       - name: dockerhub-secret  # Add this line if your DockerHub repository is private
+
+
+
+
+
+
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: voting-app
+#   namespace: ${NAMESPACE}
+# spec:
+#   replicas: 3
+#   selector:
+#     matchLabels:
+#       app: voting-app
+#   template:
+#     metadata:
+#       labels:
+#         app: voting-app
+#     spec:
+#       containers:
+#       - name: voting-app
+#         image: ${VOTING_APP_IMAGE}
+#         env:
+#         - name: DATABASE_HOST
+#           value: mysql.${NAMESPACE}.svc.cluster.local
+#         - name: DATABASE_USER
+#           value: root
+#         - name: DATABASE_PASSWORD
+#           valueFrom:
+#             secretKeyRef:
+#               name: mysql-root-password
+#               key: password
+#         ports:
+#         - containerPort: 80
+#       imagePullSecrets:
+#       - name: dockerhub-secret  # Add this line if your DockerHub repository is private
