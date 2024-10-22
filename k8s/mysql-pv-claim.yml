@@ -2,12 +2,28 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-pv-claim
-  namespace: ${NAMESPACE}
+  namespace: voting-app  # Replace 'default' with your desired namespace
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
-  storageClassName: gp2-new
+  storageClassName: gp2  # Predefined storage class for AWS EBS volumes
+
+
+
+
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: mysql-pv-claim
+#   namespace: ${NAMESPACE}
+# spec:
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 20Gi
+#   storageClassName: gp2-new
 
