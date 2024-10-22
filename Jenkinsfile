@@ -13,18 +13,18 @@ pipeline {
         VOTING_APP_IMAGE = 'mbinui/votingapp:v1'
     }
 
-    stages {
-        stage('Set Script Permissions') {
-            steps {
-                sh 'chmod +x scripts/install-tools.sh'
-            }
-        }
+    // stages {
+    //     stage('Set Script Permissions') {
+    //         steps {
+    //             sh 'chmod +x scripts/install-tools.sh'
+    //         }
+    //     }
 
-        stage('Install Tools') {
-            steps {
-                sh 'scripts/install-tools.sh'
-            }
-        }
+    //     stage('Install Tools') {
+    //         steps {
+    //             sh 'scripts/install-tools.sh'
+    //         }
+    //     }
 
         stage('Configure AWS CLI') {
             steps {
@@ -50,7 +50,7 @@ pipeline {
                             '''
                             sh '''
                             aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
-                            kubectl config get-contexts
+                            //kubectl config get-contexts
                             //kubectl config use-context arn:aws:eks:$AWS_REGION:032795972194:cluster/$EKS_CLUSTER_NAME
                             '''
                         } else if (params.ACTION == 'destroy') {
