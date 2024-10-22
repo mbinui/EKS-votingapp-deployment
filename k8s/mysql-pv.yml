@@ -9,7 +9,8 @@ spec:
     - ReadWriteOnce
   storageClassName: gp2  # Predefined storage class for AWS EBS volumes
   persistentVolumeReclaimPolicy: Retain
-
+  hostPath:
+     path: "/mnt/data/mysql"
 
 
 
